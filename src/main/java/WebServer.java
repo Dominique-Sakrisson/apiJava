@@ -5,17 +5,20 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.text.NumberFormat;
 
 public class WebServer {
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        String hostPortString = System.getenv("PORT");
+        int hostPort = Integer.parseInt(hostPortString);
+        HttpServer server = HttpServer.create(new InetSocketAddress(hostPort), 0);
 
         server.createContext("/", new RootHandler());
         server.createContext("/hello", new HelloHandler());
 
         server.setExecutor(null);
         server.start();
-        System.out.println("server start on http://localhost:8080");
+        System.out.println("server start on http://localhost:" + hostPortString);
     }
     //handler for "/"
     static class RootHandler implements HttpHandler{

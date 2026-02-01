@@ -1,3 +1,5 @@
+package org.example;
+
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -5,35 +7,38 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.text.NumberFormat;
+import java.sql.*;
 
 public class WebServer {
     public static void main(String[] args) throws IOException {
-        String hostPortString = System.getenv("PORT");
-        int hostPort = Integer.parseInt(hostPortString);
+        int hostPort = Integer.parseInt( System.getenv("API_PORT"));
         HttpServer server = HttpServer.create(new InetSocketAddress(hostPort), 0);
-
         server.createContext("/", new RootHandler());
-        server.createContext("/hello", new HelloHandler());
-
+        server.createContext("/" + System.getenv("TEST_ROUTE"), new TestHandler());
         server.setExecutor(null);
         server.start();
-        System.out.println("server start on http://localhost:" + hostPortString);
+        System.out.println("server start on http://localhost:" +  System.getenv("API_PORT"));
     }
     //handler for "/"
     static class RootHandler implements HttpHandler{
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = "<h1>Welcome to my Java Web Server!</h1>";
+            String response = "<h1>Successfully connected!</h1>";
             sendResponse(exchange, response);
         }
     }
 
-    //handler for "/hello"
-    static class HelloHandler implements HttpHandler{
+
+    static class TestHandler implements HttpHandler{
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = "hello from java";
+            // Simulate heavy data: 5MB of text
+            int sizeMB = 15;
+            StringBuilder sb = new StringBuilder(sizeMB * 1024 * 1024);
+            for (int i = 0; i < sizeMB * 1024; i++) {
+                sb.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+            }
+            String response = "hello from java" + sb;
             sendResponse(exchange, response);
         }
     }

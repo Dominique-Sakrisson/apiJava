@@ -1,3 +1,5 @@
+package org.example;
+
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -5,38 +7,17 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.text.NumberFormat;
 import java.sql.*;
 
 public class WebServer {
     public static void main(String[] args) throws IOException {
-        String hostPortString = System.getenv("PORT");
-        int hostPort = Integer.parseInt(hostPortString);
+        int hostPort = Integer.parseInt( System.getenv("API_PORT"));
         HttpServer server = HttpServer.create(new InetSocketAddress(hostPort), 0);
-
-        String url = "jdbc:postgresql://localhost:5432/postgres";
-        String user = "postgres";
-        String pass = "postgres";
-
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url, user, pass);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("connected to postgresql");
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         server.createContext("/", new RootHandler());
-        server.createContext("/hello", new HelloHandler());
-
+        server.createContext("/" + System.getenv("TEST_ROUTE"), new TestHandler());
         server.setExecutor(null);
         server.start();
-        System.out.println("server start on http://localhost:" + hostPortString);
+        System.out.println("server start on http://localhost:" +  System.getenv("API_PORT"));
     }
     //handler for "/"
     static class RootHandler implements HttpHandler{
@@ -47,8 +28,8 @@ public class WebServer {
         }
     }
 
-    //handler for "/hello"
-    static class HelloHandler implements HttpHandler{
+
+    static class TestHandler implements HttpHandler{
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             // Simulate heavy data: 5MB of text
